@@ -1,0 +1,365 @@
+---
+title: "Rettke-Sam-ada-homework-2"
+author: "Sam Rettke"
+date: "3/28/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Challenge 1**
+
+```{r}
+library(tidyverse)
+f <- "https://raw.githubusercontent.com/difiore/ada-2021-datasets/main/IMDB-movies.csv"
+d <- read_csv(f, col_names = TRUE)
+head(d)
+tail(d)
+str(d)
+
+d <- filter(d, startYear %in% 1920:1979 & runtimeMinutes >= 60 & runtimeMinutes <= 180) %>% 
+mutate(decade = case_when(
+  startYear %in% 1920:1929 ~ "20s", 
+  startYear %in% 1930:1939 ~ "30s", 
+  startYear %in% 1940:1949 ~ "40s", 
+  startYear %in% 1950:1959 ~ "50s", 
+  startYear %in% 1960:1969 ~ "60s", 
+  startYear %in% 1970:1979 ~ "70s"))
+head(d)
+
+ggplot(data = d, aes(runtimeMinutes)) + geom_histogram(stat = "bin", binwidth = 10, color = "blue", fill = "red") + facet_wrap(~decade)
+
+results <- group_by(d, decade) %>% 
+summarize(n_cases = n(), mean_runtime = mean(runtimeMinutes, na.rm = TRUE), sd_runtime = sd(runtimeMinutes, na.rm = TRUE))
+results
+
+twenties <- filter(d, decade %in% "20s")
+thirties <- filter(d, decade %in% "30s")
+forties <- filter(d, decade %in% "40s")
+fifties <- filter(d, decade %in% "50s")
+sixties <- filter(d, decade %in% "60s")
+seventies <- filter(d, decade %in% "70s")
+
+n <- 100
+s_20s <- sample_n(twenties, size = n, replace = FALSE)
+s_20s_mean <- mean(s_20s$runtimeMinutes, na.rm = TRUE)
+s_20s_sd <- sd(s_20s$runtimeMinutes, na.rm = TRUE)
+s_20s_se <- s_20s_sd / sqrt(n)
+
+s_30s <- sample_n(thirties, size = n, replace = FALSE)
+s_30s_mean <- mean(s_30s$runtimeMinutes, na.rm = TRUE)
+s_30s_sd <- sd(s_30s$runtimeMinutes, na.rm = TRUE)
+s_30s_se <- s_30s_sd / sqrt(n)
+
+s_40s <- sample_n(forties, size = n, replace = FALSE)
+s_40s_mean <- mean(s_40s$runtimeMinutes, na.rm = TRUE)
+s_40s_sd <- sd(s_40s$runtimeMinutes, na.rm = TRUE)
+s_40s_se <- s_40s_sd / sqrt(n)
+
+s_50s <- sample_n(fifties, size = n, replace = FALSE)
+s_50s_mean <- mean(s_50s$runtimeMinutes, na.rm = TRUE)
+s_50s_sd <- sd(s_50s$runtimeMinutes, na.rm = TRUE)
+s_50s_se <- s_50s_sd / sqrt(n)
+
+s_60s <- sample_n(sixties, size = n, replace = FALSE)
+s_60s_mean <- mean(s_60s$runtimeMinutes, na.rm = TRUE)
+s_60s_sd <- sd(s_60s$runtimeMinutes, na.rm = TRUE)
+s_60s_se <- s_60s_sd / sqrt(n)
+
+s_70s <- sample_n(seventies, size = n, replace = FALSE)
+s_70s_mean <- mean(s_70s$runtimeMinutes, na.rm = TRUE)
+s_70s_sd <- sd(s_70s$runtimeMinutes, na.rm = TRUE)
+s_70s_se <- s_70s_sd / sqrt(n)
+
+library(radiant)
+byDecade <- group_by(d, decade) %>% summarize(n_cases = n(), pop_mean_runtimeMinutes = mean(runtimeMinutes, na.rm = TRUE), pop_sd_runtimeMinutes = sdpop(runtimeMinutes, na.rm = TRUE))
+byDecade
+pop_20s_se <- byDecade[[1,4]] / sqrt(n)
+pop_30s_se <- byDecade[[2,4]] / sqrt(n)
+pop_40s_se <- byDecade[[3,4]] / sqrt(n)
+pop_50s_se <- byDecade[[4,4]] / sqrt(n)
+pop_60s_se <- byDecade[[5,4]] / sqrt(n)
+pop_70s_se <- byDecade[[6,4]] / sqrt(n)
+
+s_mean_and_sd_summary <- tibble(decade = c("20s", "30s", "40s", "50s", "60s", "70s"), s_mean = c(s_20s_mean, s_30s_mean, s_40s_mean, s_50s_mean, s_60s_mean, s_70s_mean), s_sd = c(s_20s_sd, s_30s_sd, s_40s_sd, s_50s_sd, s_60s_sd, s_70s_sd))
+s_mean_and_sd_summary
+
+only_runtime_20s <- c(twenties$runtimeMinutes)
+k <- 1000
+n_dist <- 100
+s_dist_20s <- list()
+for(i in 1:k){s_dist_20s[[i]] <- sample(only_runtime_20s, size = n, replace = FALSE)}
+
+m_20s <- vector(length = k)
+for(i in 1:k){m_20s[[i]] <- mean(s_dist_20s[[i]], na.rm = TRUE)}
+
+sd_20s <- vector(length = k)
+for(i in 1:k){sd_20s[[i]] <- sd(s_dist_20s[[i]], na.rm = TRUE)}
+
+mean(m_20s)
+sd(m_20s)
+samp_dist_se_20s <- sd(m_20s)
+ggplot(data = as.data.frame(m_20s), aes(x = m_20s)) + geom_histogram(stat = "bin", binwidth = 1, color = "black", fill = "red") + labs(title = "20s runtime sampling distribution")
+
+only_runtime_30s <- c(thirties$runtimeMinutes)
+k <- 1000
+n_dist <- 100
+s_dist_30s <- list()
+for(i in 1:k){s_dist_30s[[i]] <- sample(only_runtime_30s, size = n, replace = FALSE)}
+
+m_30s <- vector(length = k)
+for(i in 1:k){m_30s[[i]] <- mean(s_dist_30s[[i]], na.rm = TRUE)}
+
+sd_30s <- vector(length = k)
+for(i in 1:k){sd_30s[[i]] <- sd(s_dist_30s[[i]], na.rm = TRUE)}
+
+mean(m_30s)
+sd(m_30s)
+samp_dist_se_30s <- sd(m_30s)
+ggplot(data = as.data.frame(m_30s), aes(x = m_30s)) + geom_histogram(stat = "bin", binwidth = 1, color = "black", fill = "orange") + labs(title = "30s runtime sampling distribution")
+
+only_runtime_40s <- c(forties$runtimeMinutes)
+k <- 1000
+n_dist <- 100
+s_dist_40s <- list()
+for(i in 1:k){s_dist_40s[[i]] <- sample(only_runtime_40s, size = n, replace = FALSE)}
+
+m_40s <- vector(length = k)
+for(i in 1:k){m_40s[[i]] <- mean(s_dist_40s[[i]], na.rm = TRUE)}
+
+sd_40s <- vector(length = k)
+for(i in 1:k){sd_40s[[i]] <- sd(s_dist_40s[[i]], na.rm = TRUE)}
+
+mean(m_40s)
+sd(m_40s)
+samp_dist_se_40s <- sd(m_40s)
+ggplot(data = as.data.frame(m_40s), aes(x = m_40s)) + geom_histogram(stat = "bin", binwidth = 1, color = "black", fill = "yellow") + labs(title = "40s runtime sampling distribution")
+
+only_runtime_50s <- c(fifties$runtimeMinutes)
+k <- 1000
+n_dist <- 100
+s_dist_50s <- list()
+for(i in 1:k){s_dist_50s[[i]] <- sample(only_runtime_50s, size = n, replace = FALSE)}
+
+m_50s <- vector(length = k)
+for(i in 1:k){m_50s[[i]] <- mean(s_dist_50s[[i]], na.rm = TRUE)}
+
+sd_50s <- vector(length = k)
+for(i in 1:k){sd_50s[[i]] <- sd(s_dist_50s[[i]], na.rm = TRUE)}
+
+mean(m_50s)
+sd(m_50s)
+samp_dist_se_50s <- sd(m_50s)
+ggplot(data = as.data.frame(m_50s), aes(x = m_50s)) + geom_histogram(stat = "bin", binwidth = 1, color = "black", fill = "green") + labs(title = "50s runtime sampling distribution")
+
+only_runtime_60s <- c(sixties$runtimeMinutes)
+k <- 1000
+n_dist <- 100
+s_dist_60s <- list()
+for(i in 1:k){s_dist_60s[[i]] <- sample(only_runtime_60s, size = n, replace = FALSE)}
+
+m_60s <- vector(length = k)
+for(i in 1:k){m_60s[[i]] <- mean(s_dist_60s[[i]], na.rm = TRUE)}
+
+sd_60s <- vector(length = k)
+for(i in 1:k){sd_60s[[i]] <- sd(s_dist_60s[[i]], na.rm = TRUE)}
+
+mean(m_60s)
+sd(m_60s)
+samp_dist_se_60s <- sd(m_60s)
+ggplot(data = as.data.frame(m_60s), aes(x = m_60s)) + geom_histogram(stat = "bin", binwidth = 1, color = "black", fill = "blue") + labs(title = "60s runtime sampling distribution")
+
+only_runtime_70s <- c(seventies$runtimeMinutes)
+k <- 1000
+n_dist <- 100
+s_dist_70s <- list()
+for(i in 1:k){s_dist_70s[[i]] <- sample(only_runtime_70s, size = n, replace = FALSE)}
+
+m_70s <- vector(length = k)
+for(i in 1:k){m_70s[[i]] <- mean(s_dist_70s[[i]], na.rm = TRUE)}
+
+sd_70s <- vector(length = k)
+for(i in 1:k){sd_70s[[i]] <- sd(s_dist_70s[[i]], na.rm = TRUE)}
+
+mean(m_70s)
+sd(m_70s)
+samp_dist_se_70s <- sd(m_70s)
+ggplot(data = as.data.frame(m_70s), aes(x = m_70s)) + geom_histogram(stat = "bin", binwidth = 1, color = "black", fill = "purple") + labs(title = "70s runtime sampling distribution")
+```
+
+all have fairly normal distributions
+
+```{r}
+s_se <- tibble(decade = c("20s", "30s", "40s", "50s", "60s", "70s"), s_se = c(s_20s_se, s_30s_se, s_40s_se, s_50s_se, s_60s_se, s_70s_se), pop_se = c(pop_20s_se, pop_30s_se, pop_40s_se, pop_50s_se, pop_60s_se, pop_70s_se), samp_dist_se = c(samp_dist_se_20s, samp_dist_se_30s, samp_dist_se_40s, samp_dist_se_50s, samp_dist_se_60s, samp_dist_se_70s))
+s_se
+```
+
+**Challenge 2**
+
+```{r}
+detach(package:radiant,unload=TRUE)
+library(mosaic)
+l <- 12
+(ppois(q = 9, l))
+(dpois(x = 0, l))
+(dpois(x = 5, l))
+(1 - ppois(q = 18, l))
+p1 <- plotDist("pois",
+    lambda = 12,
+    kind = "histogram",
+    main = paste0("Poisson mass function"),
+    xlab = "Arrivals",
+    ylab = "Frequency",
+    xlim = c(0, 24)
+  )
+plot(p1)
+set.seed(1)
+sim_results <- (rpois(n = 1460, l))
+histogram(
+    sim_results, 
+    type = "density",
+    main = "Simulated Results of\nmass function",
+    xlab = "Arrivals",
+    ylab = "Count",
+    xlim = c(0, 24),
+    center = l,
+    width = 1
+    )
+```
+
+they look similar, both have approx. the same central tendency and spread
+
+
+
+**Challenge 3**
+
+```{r}
+d <- tibble(read_csv("zombies.csv")) 
+head(d)
+tail(d)
+str(d)
+
+zk <- select(d, height, weight, age, zombies_killed, years_of_education)
+head(zk)
+pop_mus <- summarize(zk, mean(height), mean(weight), mean(age), mean(zombies_killed), mean(years_of_education))
+pop_mus
+pop_sds <- summarize(zk, sdpop(height), sdpop(weight), sdpop(age), sdpop(zombies_killed), sdpop(years_of_education))
+pop_sds
+
+# boxplots
+bp_height <- ggplot(d, aes(x = gender, y = height)) +  
+  geom_boxplot() 
+bp_height 
+
+bp_weight <- ggplot(d, aes(x = gender, y = weight)) +  
+  geom_boxplot() 
+bp_weight 
+
+bp_age <- ggplot(d, aes(x = gender, y = age)) +  
+  geom_boxplot() 
+bp_age
+
+bp_zombies_killed <- ggplot(d, aes(x = gender, y = zombies_killed)) +  
+  geom_boxplot() 
+bp_zombies_killed 
+
+bp_years_of_education <- ggplot(d, aes(x = gender, y = years_of_education)) +  
+  geom_boxplot() 
+bp_years_of_education 
+
+# scatter plots 
+sp1 <- ggplot(d, aes(x = age, y = height)) + geom_point(aes(color = factor(gender))) 
+sp1 +  
+  labs(title = "Height in relation to age", 
+    subtitle = "by Gender") 
+
+sp2 <- ggplot(d, aes(x = age, y = weight)) + geom_point(aes(color = factor(gender))) 
+sp2 +  
+  labs(title = "Weight in relation to age", 
+    subtitle = "by Gender") 
+```
+
+both height and weight appear to be positively correlated with age, with males' height and weight both greater than females' on average
+
+```{r}
+# histograms 
+hist_height <- ggplot(d, aes(x = height)) + geom_histogram(color = "black", fill = "purple", bins = 30) 
+hist_height +  
+  labs(title = "Height Distribution") 
+hist_weight <- ggplot(d, aes(x = weight)) + geom_histogram(color = "black", fill = "blue", bins = 30) 
+hist_weight +  
+  labs(title = "Weight Distribution") 
+hist_age <- ggplot(d, aes(x = age)) + geom_histogram(color = "black", fill = "green", bins = 30) 
+hist_age +  
+  labs(title = "Age Distribution") 
+hist_kill <- ggplot(d, aes(x = zombies_killed)) + geom_histogram(color = "black", fill = "yellow", bins = 30) 
+hist_kill +  
+  labs(title = "Zombies Killed Distribution") 
+hist_edu <- ggplot(d, aes(x = years_of_education)) + geom_histogram(color = "black", fill = "orange", bins = 30) 
+hist_edu +  
+  labs(title = "Years of Education Distribution") 
+
+# QQ Plot 
+qqp_height <- ggplot(d, aes(sample = height))
+qqp_height + stat_qq() + stat_qq_line() +
+  labs(title = "height")
+```
+
+yes, normal distribution
+
+```{r}
+qqp_weight <- ggplot(d, aes(sample = weight)) 
+qqp_weight + stat_qq() + stat_qq_line() +
+  labs(title = "weight")
+```
+
+yes, normal distribution
+
+```{r}
+qqp_age <- ggplot(d, aes(sample = age)) 
+qqp_age + stat_qq() + stat_qq_line() +
+  labs(title = "age")
+```
+
+yes, normal distribution
+
+```{r}
+qqp_kill <- ggplot(d, aes(sample = zombies_killed)) 
+qqp_kill + stat_qq() + stat_qq_line() +
+  labs(title = "zombies_killed")
+```
+
+no, poisson distribution? (discrete variable)
+
+```{r}
+qqp_edu <- ggplot(d, aes(sample = years_of_education)) 
+qqp_edu + stat_qq() + stat_qq_line() +
+  labs(title = "years_of_education")
+```
+
+no, poisson distribution? (discrete variable)
+
+```{r}
+set.seed(1)
+n <- 50 
+s_zk <- sample_n(d, size = n, replace = FALSE) 
+s_height_mean <- mean(s_zk$height, na.rm = TRUE) 
+s_weight_mean <- mean(s_zk$weight, na.rm = TRUE) 
+s_age_mean <- mean(s_zk$age, na.rm = TRUE)
+s_kill_mean <- mean(s_zk$zombies_killed, na.rm = TRUE)
+s_edu_mean <- mean(s_zk$years_of_education, na.rm = TRUE)
+
+s_height_sd <- sd(s_zk$height, na.rm = TRUE) 
+s_weight_sd <- sd(s_zk$weight, na.rm = TRUE) 
+s_age_sd <- sd(s_zk$age, na.rm = TRUE)
+s_kill_sd <- sd(s_zk$zombies_killed, na.rm = TRUE)
+s_edu_sd <- sd(s_zk$years_of_education, na.rm = TRUE)
+
+s_height_se <- s_height_sd / sqrt(n) 
+s_weight_se <- s_weight_sd / sqrt(n)  
+s_age_se <- s_age_sd / sqrt(n) 
+s_kill_se <- s_kill_sd / sqrt(n) 
+s_edu_se <- s_edu_sd / sqrt(n) 
+```
