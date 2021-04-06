@@ -42,6 +42,7 @@ fifties <- filter(d, decade %in% "50s")
 sixties <- filter(d, decade %in% "60s")
 seventies <- filter(d, decade %in% "70s")
 
+set.seed(1)
 n <- 100
 s_20s <- sample_n(twenties, size = n, replace = FALSE)
 s_20s_mean <- mean(s_20s$runtimeMinutes, na.rm = TRUE)
@@ -90,7 +91,7 @@ only_runtime_20s <- c(twenties$runtimeMinutes)
 k <- 1000
 n_dist <- 100
 s_dist_20s <- list()
-for(i in 1:k){s_dist_20s[[i]] <- sample(only_runtime_20s, size = n, replace = FALSE)}
+for(i in 1:k){s_dist_20s[[i]] <- sample(only_runtime_20s, size = n_dist, replace = FALSE)}
 
 m_20s <- vector(length = k)
 for(i in 1:k){m_20s[[i]] <- mean(s_dist_20s[[i]], na.rm = TRUE)}
@@ -107,7 +108,7 @@ only_runtime_30s <- c(thirties$runtimeMinutes)
 k <- 1000
 n_dist <- 100
 s_dist_30s <- list()
-for(i in 1:k){s_dist_30s[[i]] <- sample(only_runtime_30s, size = n, replace = FALSE)}
+for(i in 1:k){s_dist_30s[[i]] <- sample(only_runtime_30s, size = n_dist, replace = FALSE)}
 
 m_30s <- vector(length = k)
 for(i in 1:k){m_30s[[i]] <- mean(s_dist_30s[[i]], na.rm = TRUE)}
@@ -124,7 +125,7 @@ only_runtime_40s <- c(forties$runtimeMinutes)
 k <- 1000
 n_dist <- 100
 s_dist_40s <- list()
-for(i in 1:k){s_dist_40s[[i]] <- sample(only_runtime_40s, size = n, replace = FALSE)}
+for(i in 1:k){s_dist_40s[[i]] <- sample(only_runtime_40s, size = n_dist, replace = FALSE)}
 
 m_40s <- vector(length = k)
 for(i in 1:k){m_40s[[i]] <- mean(s_dist_40s[[i]], na.rm = TRUE)}
@@ -141,7 +142,7 @@ only_runtime_50s <- c(fifties$runtimeMinutes)
 k <- 1000
 n_dist <- 100
 s_dist_50s <- list()
-for(i in 1:k){s_dist_50s[[i]] <- sample(only_runtime_50s, size = n, replace = FALSE)}
+for(i in 1:k){s_dist_50s[[i]] <- sample(only_runtime_50s, size = n_dist, replace = FALSE)}
 
 m_50s <- vector(length = k)
 for(i in 1:k){m_50s[[i]] <- mean(s_dist_50s[[i]], na.rm = TRUE)}
@@ -158,7 +159,7 @@ only_runtime_60s <- c(sixties$runtimeMinutes)
 k <- 1000
 n_dist <- 100
 s_dist_60s <- list()
-for(i in 1:k){s_dist_60s[[i]] <- sample(only_runtime_60s, size = n, replace = FALSE)}
+for(i in 1:k){s_dist_60s[[i]] <- sample(only_runtime_60s, size = n_dist, replace = FALSE)}
 
 m_60s <- vector(length = k)
 for(i in 1:k){m_60s[[i]] <- mean(s_dist_60s[[i]], na.rm = TRUE)}
@@ -175,7 +176,7 @@ only_runtime_70s <- c(seventies$runtimeMinutes)
 k <- 1000
 n_dist <- 100
 s_dist_70s <- list()
-for(i in 1:k){s_dist_70s[[i]] <- sample(only_runtime_70s, size = n, replace = FALSE)}
+for(i in 1:k){s_dist_70s[[i]] <- sample(only_runtime_70s, size = n_dist, replace = FALSE)}
 
 m_70s <- vector(length = k)
 for(i in 1:k){m_70s[[i]] <- mean(s_dist_70s[[i]], na.rm = TRUE)}
@@ -192,8 +193,8 @@ ggplot(data = as.data.frame(m_70s), aes(x = m_70s)) + geom_histogram(stat = "bin
 all have fairly normal distributions
 
 ```{r}
-s_se <- tibble(decade = c("20s", "30s", "40s", "50s", "60s", "70s"), s_se = c(s_20s_se, s_30s_se, s_40s_se, s_50s_se, s_60s_se, s_70s_se), pop_se = c(pop_20s_se, pop_30s_se, pop_40s_se, pop_50s_se, pop_60s_se, pop_70s_se), samp_dist_se = c(samp_dist_se_20s, samp_dist_se_30s, samp_dist_se_40s, samp_dist_se_50s, samp_dist_se_60s, samp_dist_se_70s))
-s_se
+standard_errors <- tibble(decade = c("20s", "30s", "40s", "50s", "60s", "70s"), s_se = c(s_20s_se, s_30s_se, s_40s_se, s_50s_se, s_60s_se, s_70s_se), pop_se = c(pop_20s_se, pop_30s_se, pop_40s_se, pop_50s_se, pop_60s_se, pop_70s_se), samp_dist_se = c(samp_dist_se_20s, samp_dist_se_30s, samp_dist_se_40s, samp_dist_se_50s, samp_dist_se_60s, samp_dist_se_70s))
+standard_errors
 ```
 
 **Challenge 2**
@@ -362,4 +363,66 @@ s_weight_se <- s_weight_sd / sqrt(n)
 s_age_se <- s_age_sd / sqrt(n) 
 s_kill_se <- s_kill_sd / sqrt(n) 
 s_edu_se <- s_edu_sd / sqrt(n) 
+
+k <- 99
+n <- 50
+mean_height <- matrix(1:100, nrow =100) 
+for (i in 1:k){ 
+  mean_height[i] <- sum(sample_n(d, size = n, replace = FALSE)[5])/ 50 
+} 
+
+mean_height[100] <- s_height_mean 
+mean(mean_height)
+sd(mean_height)
+samp_dist_se_height <- sd(mean_height)
+ggplot(data = as.data.frame(mean_height), aes(x = mean_height)) + geom_histogram(stat = "bin", binwidth = .1, color = "black", fill = "red") + labs(title = "mean height\n sampling distribution")
+
+mean_weight <- matrix(1:100, nrow =100) 
+for (i in 1:k){ 
+  mean_weight[i] <- sum(sample_n(d, size = n, replace = FALSE)[6])/ 50 
+} 
+
+mean_weight[100] <- s_weight_mean 
+mean(mean_weight)
+sd(mean_weight)
+samp_dist_se_weight <- sd(mean_weight)
+ggplot(data = as.data.frame(mean_weight), aes(x = mean_weight)) + geom_histogram(stat = "bin", binwidth = .5, color = "black", fill = "orange") + labs(title = "mean weight\n sampling distribution")
+
+mean_age <- matrix(1:100, nrow =100) 
+for (i in 1:k){ 
+  mean_age[i] <- sum(sample_n(d, size = n, replace = FALSE)[10])/ 50 
+} 
+
+mean_age[100] <- s_age_mean 
+mean(mean_age)
+sd(mean_age)
+samp_dist_se_age <- sd(mean_age)
+ggplot(data = as.data.frame(mean_age), aes(x = mean_age)) + geom_histogram(stat = "bin", binwidth = .1, color = "black", fill = "yellow") + labs(title = "mean age\n sampling distribution")
+
+mean_kill <- matrix(1:100, nrow =100) 
+for (i in 1:k){ 
+  mean_kill[i] <- sum(sample_n(d, size = n, replace = FALSE)[7])/ 50 
+} 
+
+mean_kill[100] <- s_kill_mean 
+mean(mean_kill)
+sd(mean_kill)
+samp_dist_se_kill <- sd(mean_kill)
+ggplot(data = as.data.frame(mean_kill), aes(x = mean_kill)) + geom_histogram(stat = "bin", binwidth = .05, color = "black", fill = "green") + labs(title = "mean zombies killed\n sampling distribution")
+
+mean_edu <- matrix(1:100, nrow =100) 
+for (i in 1:k){ 
+  mean_edu[i] <- sum(sample_n(d, size = n, replace = FALSE)[8])/ 50 
+} 
+
+mean_edu[100] <- s_edu_mean 
+mean(mean_edu)
+sd(mean_edu)
+samp_dist_se_edu <- sd(mean_edu)
+ggplot(data = as.data.frame(mean_edu), aes(x = mean_edu)) + geom_histogram(stat = "bin", binwidth = .05, color = "black", fill = "blue") + labs(title = "mean years of education\n sampling distribution")
+
+standard_errors_zk <- tibble(variable = c("height", "weight", "age", "kill", "edu"), samp_dist_se = c(samp_dist_se_height, samp_dist_se_weight, samp_dist_se_age, samp_dist_se_kill, samp_dist_se_edu), s_se = c(s_height_se, s_weight_se, s_age_se, s_kill_se, s_edu_se))
+standard_errors_zk
 ```
+
+the sampling distributions for each variable mean appear approximately normally distributed, even for those variables not drawn from a normal distribution (this is expected since it is a distribution of means)
